@@ -1,0 +1,34 @@
+# This initialisation script will be invoked when initialising an X session.
+# It should restrict itself to initialising environment variables to
+# configure a session.
+
+# Local path
+#
+export PATH=~/Local/bin:"$PATH"
+
+# Editor selection
+#
+export EDITOR=/usr/bin/vi
+
+# Colour directory listings
+#
+# http://www.gnu.org/software/coreutils/manual/coreutils.html
+#
+# Note that using the --color option may incur a noticeable performance
+# penalty when run in a directory with very many entries, because the
+# default settings require that ls stat every single file it lists.
+# However, if you would like most of the file-type coloring but can
+# live without the other coloring options (e.g., executable, orphan,
+# sticky, other-writable, capability), use dircolors to set the LS_COLORS
+# environment variable like this,
+#
+#          eval $(dircolors -p | perl -pe \
+#                      's/^((CAP|S[ET]|O[TR]|M|E)\w+).*/$1 00/' | dircolors -)
+#
+# and on a dirent.d_type-capable file system, ls will perform only one
+# stat call per command line argument. 
+
+eval $({
+  sed -e 's/^\(\(CAP\|S[ET]\|O[TR]\|M\|E\)[A-Za-z0-9_]\+\).*/\1 00/' |
+  dircolors -
+} < "$HOME/.dir_colors")
