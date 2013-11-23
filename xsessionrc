@@ -12,6 +12,9 @@ export EDITOR=/usr/bin/vi
 
 # Colour directory listings
 #
+# Use ~/.dircolorsrc because Red Hat based systems have colorls.sh which
+# will actively look for ~/.dir_colors and ~/.dircolors.
+#
 # http://www.gnu.org/software/coreutils/manual/coreutils.html
 #
 # Note that using the --color option may incur a noticeable performance
@@ -28,7 +31,20 @@ export EDITOR=/usr/bin/vi
 # and on a dirent.d_type-capable file system, ls will perform only one
 # stat call per command line argument. 
 
-eval $({
-  sed -e 's/^\(\(CAP\|S[ET]\|O[TR]\|M\|E\)[A-Za-z0-9_]\+\).*/\1 00/' |
-  dircolors -
-} < "$HOME/.dir_colors")
+eval $(
+    awk -W source='
+    BEGIN {
+        while ("dircolors -p" | getline) {
+            if (/^ *[[:upper:]]/) K[$1] = 1;
+        }
+    }
+    {
+        sub(/^\(\(CAP\|S[ET]\|O[TR]\|M\|E\)[A-Za-z0-9_]\+\).*/,"\1 00");
+        if (/^ *[[:upper:]]/) {
+            if ( ! ($1 in K))
+                printf("# ");
+        }
+        print;
+    }
+    ' < "$HOME/.dircolorsrc" | dircolors -
+)
