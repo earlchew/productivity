@@ -17,8 +17,10 @@ alias ls='ls --color=auto -FC '
 # Configure the PS1 prompt and constrain it to something reasonable
 #
 PS1='${debian_chroot:+($debian_chroot)}'
+[ -z "${TERM:++}" -o x"$TERM" = x"dumb" ] ||
 PS1="$PS1\[$(tput bold | sed -e 's/\o033/\\033/g')\]"
 PS1="$PS1\u@\h"
+[ -z "${TERM:++}" -o x"$TERM" = x"dumb" ] ||
 PS1="$PS1\[$(tput sgr0 | sed -e 's/\o033/\\033/g')\] "
 PS1="$PS1\w\$ "
 PROMPT_DIRTRIM=2
