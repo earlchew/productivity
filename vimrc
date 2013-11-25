@@ -20,3 +20,8 @@ syntax on
 " Clear search highlighting
 " http://stackoverflow.com/questions/657447/vim-clear-last-search-highlighting
 nmap <SPACE> <SPACE>:noh<CR>
+
+" Show extraneous whitespace
+" http://stackoverflow.com/questions/4617059/showing-trailing-spaces-in-vim
+:highlight ExtraWhitespace ctermbg=red guibg=red
+:match ExtraWhitespace / \+\ze\t\|\s\+$/
