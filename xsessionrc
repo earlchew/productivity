@@ -4,7 +4,15 @@
 
 # Local path
 #
-export PATH=~/Local/bin:"$PATH"
+export PATH=$(
+    LOCALPATH="$HOME/Local/bin"
+    [ -n "${HOME:++}"                        ] &&
+    [ x"$PATH" != x"$LOCALPATH"              ] &&
+    [ x"$PATH"  = x"${PATH##$LOCALPATH:*}"   ] &&
+    [ x"$PATH"  = x"${PATH##*:$LOCALPATH:*}" ] &&
+    [ x"$PATH"  = x"${PATH%%*:$LOCALPATH}"   ] &&
+    PATH="$LOCALPATH:$PATH"
+    echo "$PATH")
 
 # Editor selection
 #
