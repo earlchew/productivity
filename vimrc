@@ -23,5 +23,9 @@ nmap <SPACE> <SPACE>:noh<CR>
 
 " Show extraneous whitespace
 " http://stackoverflow.com/questions/4617059/showing-trailing-spaces-in-vim
-:highlight ExtraWhitespace ctermbg=red guibg=red
-:match ExtraWhitespace / \+\ze\t\|\s\+$/
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace / \+\ze\t\|\s\+$/
+
+" Noting security concern, enable modeline for non-root user
+" http://usevim.com/2012/03/28/modelines/
+set modeline
