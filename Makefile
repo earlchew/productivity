@@ -1,5 +1,5 @@
 RC = .bash_profile:bash_profile \
-     .bash:bashrc               \
+     .bashrc:bashrc             \
      .dircolorsrc:dircolorsrc   \
      .profile:profile           \
      .vimrc:vimrc               \
