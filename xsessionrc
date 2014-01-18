@@ -5,7 +5,7 @@
 # Local path
 #
 export PATH=$(
-    LOCALPATH="$HOME/Local/bin"
+    LOCALPATH="$HOME/bin"
     [ -n "${HOME:++}"                        ] &&
     [ x"$PATH" != x"$LOCALPATH"              ] &&
     [ x"$PATH"  = x"${PATH##$LOCALPATH:*}"   ] &&
