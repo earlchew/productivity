@@ -16,7 +16,8 @@ export PATH=$(
 
 # Editor selection
 #
-export EDITOR=/usr/bin/vi
+[ ! -x "$(which vi)" ] ||
+export EDITOR=$(which vi)
 
 # Colour directory listings
 #
