@@ -5,6 +5,7 @@ RC = .bash_profile:bash_profile \
      .vimrc:vimrc               \
      .emacs:emacs               \
      .xsessionrc:xsessionrc     \
+     .gitconfig:gitconfig       \
      .remote-terminal-config:remote-terminal-config
 
 all:

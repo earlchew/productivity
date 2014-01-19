@@ -1,0 +1,22 @@
+[user]
+	name = Earl Chew
+	email = earl@timberdragon.com
+
+[color]
+	ui = auto
+
+[alias]
+	exec = "!exec " # Whitespace to force /bin/sh instead of fork/exec
+	checkedout = "!git status -uno --short --porcelain | \
+                      sed -re 's/^ *[^ ]+ *//'"
+	pwb = "rev-parse --abbrev-ref HEAD"
+	rebase-cwb = "!git rebase -i $(git merge-base master $(git pwb) ) \
+                       $(git pwb)"
+	lg = "log --graph --oneline --decorate"
+	lgdiff = "log --graph --decorate -p"
+	unstage = "reset HEAD"
+	ls-untracked = "!git ls-files --other --exclude-standard | \
+                         grep -v -e '~$'"
+	prune-stale-branches = "remote prune origin"
+	delete-remote-branch = "push origin --delete"
+
