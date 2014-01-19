@@ -38,22 +38,33 @@ export EDITOR=$(which vi)
 #                      's/^((CAP|S[ET]|O[TR]|M|E)\w+).*/$1 00/' | dircolors -)
 #
 # and on a dirent.d_type-capable file system, ls will perform only one
-# stat call per command line argument. 
+# stat call per command line argument.
 
-eval $(
-    awk -W source='
-    BEGIN {
-        while ("dircolors -p" | getline) {
-            if (/^ *[[:upper:]]/) K[$1] = 1;
+case "$(uname -s)" in
+Darwin)
+    # OS X does not have dircolors:
+    #
+    # http://unix.stackexchange.com/questions/91937/mac-os-x-dircolors-not-found
+    export CLICOLOR=YES
+    export LSCOLORS=GxFxCxDxBxegedabagaced
+    ;;
+*)
+    eval $(
+        awk -W source='
+        BEGIN {
+            while ("dircolors -p" | getline) {
+                if (/^ *[[:upper:]]/) K[$1] = 1;
+            }
         }
-    }
-    {
-        sub(/^\(\(CAP\|S[ET]\|O[TR]\|M\|E\)[A-Za-z0-9_]\+\).*/,"\1 00");
-        if (/^ *[[:upper:]]/) {
-            if ( ! ($1 in K))
-                printf("# ");
+        {
+            sub(/^\(\(CAP\|S[ET]\|O[TR]\|M\|E\)[A-Za-z0-9_]\+\).*/,"\1 00");
+            if (/^ *[[:upper:]]/) {
+                if ( ! ($1 in K))
+                    printf("# ");
+            }
+            print;
         }
-        print;
-    }
-    ' < "$HOME/.dircolorsrc" | dircolors -
-)
+        ' < "$HOME/.dircolorsrc" | dircolors -
+    )
+    ;;
+esac

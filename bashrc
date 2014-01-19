@@ -11,8 +11,16 @@
 
 # Directory aliases
 #
-alias ll='ls --color=auto -FCl '
-alias ls='ls --color=auto -FC '
+case "$(uname -s)" in
+Darwin)
+    alias ll='ls -GFCl '
+    alias ls='ls -GFC '
+    ;;
+*)
+    alias ll='ls --color=auto -FCl '
+    alias ls='ls --color=auto -FC '
+    ;;
+esac
 
 # Configure the PS1 prompt and constrain it to something reasonable
 #
