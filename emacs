@@ -25,9 +25,15 @@
 
 ;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/FrameSize
+;;; http://www.emacswiki.org/emacs/FrameModes
+;;; http://www.emacswiki.org/emacs/frame-cmds.el
+;;; http://www.emacswiki.org/emacs/frame-fns.el
 ;;;
-(add-to-list 'default-frame-alist '(height . 64))
+(load-file "~/Local/emacs/frame-cmds/frame-fns.el")
+(load-file "~/Local/emacs/frame-cmds/frame-cmds.el")
 (add-to-list 'default-frame-alist '(width . 80))
+(maximize-frame-vertically)
+(add-to-list 'default-frame-alist (cons 'height (frame-height)))
 
 ;;; ****************************************************************************
 ;;; http://www.masteringemacs.org/articles/2010/10/10/introduction-to-ido-mode/
