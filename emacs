@@ -142,3 +142,9 @@ M-x compile.
 ;;; http://www.emacswiki.org/emacs/NoTabs
 ;;;
 (setq-default indent-tabs-mode nil)
+
+;;; ****************************************************************************
+;;; http://www.emacswiki.org/emacs/Scrolling
+;;; http://www.gnu.org/software/emacs/manual/html_node/emacs/Scrolling.html
+;;;
+(setq-default scroll-preserve-screen-position t)
