@@ -60,18 +60,21 @@
 ;;; ****************************************************************************
 ;;; http://www.gnu.org/software/global/globaldoc.html
 ;;;
-(add-to-list 'load-path "~/Local/global/current")
-(eval-after-load "gtags"
-  '(progn
-     (setq gtags-global-command "~/Local/global/bin/global")))
-(setq gtags-suggested-key-mapping t)
-(setq gtags-prefix-key "\C-c")
-;;(autoload 'gtags-mode "gtags" nil t)
-(require 'gtags)
-(add-hook 'c-mode-hook '(lambda() (gtags-mode 1)))
-(add-hook 'c++-mode-hook '(lambda() (gtags-mode 1)))
-(define-key gtags-mode-map "\C-t" nil) ; Recover \C-t
-(define-key gtags-mode-map "\C-m" nil) ; Recover \C-m
+(if (file-exists-p "~/Local/global/bin/global")
+  (progn
+    (add-to-list 'load-path "~/Local/global/current")
+    (eval-after-load "gtags"
+      '(progn
+         (setq gtags-global-command "~/Local/global/bin/global")))
+    (setq gtags-suggested-key-mapping t)
+    (setq gtags-prefix-key "\C-c")
+    ;;(autoload 'gtags-mode "gtags" nil t)
+    (require 'gtags)
+    (add-hook 'c-mode-hook '(lambda() (gtags-mode 1)))
+    (add-hook 'c++-mode-hook '(lambda() (gtags-mode 1)))
+    (define-key gtags-mode-map "\C-t" nil) ; Recover \C-t
+    (define-key gtags-mode-map "\C-m" nil) ; Recover \C-m
+  ))
 
 ;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/ElectricBufferList
