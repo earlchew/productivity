@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+
+exec 3>&2 2> "/tmp/${0##*/}.log"
+
+set -e
+set -x
+
+{ printf "%s\n" "Arg1: $1"
+  printf "%s\n" "Arg2: $2"
+  printf "%s\n" "Arg3: $3"
+} >&2
+
+# Add Signed-off-by to commit message unless already present
+#
+AUTHOR="$(git var GIT_AUTHOR_IDENT)"
+if [ -n "$AUTHOR" ] ; then
+    AUTHOR="${AUTHOR%%>*}>"
+    if [ -n "$( grep '^Signed-off-by:' < "$1" | {
+                while read SIGNOFF ; do
+                    SIGNOFF="${SIGNOFF#*: }"
+                    if [ x"$SIGNOFF" = x"$AUTHOR" ] ; then
+                        AUTHOR=
+                        break
+                    fi
+                done
+                [ -z "$AUTHOR" ] || printf "%s\n" "$AUTHOR" ; } )" ] ; then
+        sed -ni -e '1{;x;s/^.*/Signed-off-by: '"$AUTHOR"'/;x;}' \
+                -e '/^#/{;x;/^$/{x;bZ;};G;x;s/.*//;x;}' -e ':Z;p' "$1"
+    fi
+fi
+
+# Check for trailing whitespace on newly added lines
+#
+case "$2" in
+template)
+  SMSO="$(tput smso)"
+  RMSO="$(tput rmso)"
+  git diff --cached |
+  expand |
+  sed -n -e '1{x;s/.*/0/;x;}# Hold exit status as 1st line' \
+         -e '/^diff /{x;s/\n.*$//;x;H;}# Hold diff header as 2nd line' \
+         -e '/^+.*[\t ]$/{# Highlight each addition that ends in whitespace' \
+         -e ':1;s/\([\t ][\t ]*\)$/'"$SMSO"'\1'"$RMSO"'/;t1' \
+         -e 'x;G;s/^.\n//;# Prepend first output fragment with diff header' \
+         -e 'p' \
+         -e 's/.*/1/;h;# Exit status shows trailing whitespace detected' \
+         -e '}' \
+         -e '${x;s/^0//;tQ;q1;:Q;q0;}' >&3 || {
+    tput setaf 1 ;
+    printf "\n%s\n" "Commit aborted due to detected trailing whitespace"
+    tput sgr0 ;
+    exit 1
+  } >&3
+esac
+
+# Add output from diff --cached
+#
+case "$2" in
+template)
+  git diff --cached | sed -e '1i\' -e '# ' -e 's/^/# /' >> "$1"
+  if [ -z "${AUTHOR##*<*@cohodata.com>*}" ] ; then
+    TICKET=$(git log --pretty='format:%B' -1 HEAD |
+             sed -n -e '/^ref /{;   s/^[a-z]* //;p;q;}' \
+                    -e '/^fix /{;   s/^[a-z]* //;p;q;}' \
+                    -e '/^reopen /{;s/^[a-z]* //;p;q;}' \
+                    -e '/^close /{; s/^[a-z]* //;p;q;}')
+    [ -z "$TICKET" ]    ||
+        sed -i -e '/^ref /i\' -e "ref $TICKET\\"    \
+                              -e "fix $TICKET\\"    \
+                              -e "reopen $TICKET\\" \
+                              -e "close $TICKET"    \
+               -e '/^ref /d' -e '/^fix /d' -e '/^reopen /d' -e '/^close /d' "$1"
+  fi
+  COMPONENT=$(git log --pretty='format:%B' -1 HEAD |
+              sed -n -e '1{;s/.*\[\(.*\)\].*/\1/;p;}' )
+  [ -z "$COMPONENT" ] ||
+      sed -i -e '1{;i\' -e "[$COMPONENT] Summary" -e 'd;}' "$1"
+  ;;
+esac
