@@ -18,10 +18,10 @@
 ;;;
 (c-add-style
  "Personal"
- '("ellemtel" (c-basic-offset . 4)))
-
-(add-hook 'c-mode-common-hook
-	  '(lambda () (c-set-style "Personal")))
+ '("ellemtel" (c-basic-offset . 4)
+              (c-offsets-alist . ((member-init-intro . 0)
+                                  (case-label        . 0)
+                                  (substatement-open . 0)))))
 
 ;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/FrameSize
@@ -152,3 +152,8 @@ M-x compile.
 ;;; http://www.gnu.org/software/emacs/manual/html_node/emacs/Scrolling.html
 ;;;
 (setq-default scroll-preserve-screen-position t)
+
+;;; ****************************************************************************
+;;; http://www.emacswiki.org/emacs/DeleteSelectionMode
+;;;
+(delete-selection-mode 1)
