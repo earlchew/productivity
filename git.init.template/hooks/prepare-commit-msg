@@ -78,18 +78,18 @@ case "$2" in
                     -e '/^reopen /{;s/^[a-z]* //;p;q;}' \
                     -e '/^close /{; s/^[a-z]* //;p;q;}')
     [ -z "$TICKET" ]    ||
-        sed -i -e '/^ref /i\' -e "ref $TICKET\\"    \
-                              -e "fix $TICKET\\"    \
-                              -e "reopen $TICKET\\" \
-                              -e "close $TICKET"    \
-               -e '/^ref /d' -e '/^fix /d' -e '/^reopen /d' -e '/^close /d' "$1"
+        sed -i -e '1i\' -e "ref $TICKET\\"    \
+                        -e "fix $TICKET\\"    \
+                        -e "reopen $TICKET\\" \
+                        -e "close $TICKET"    "$1"
+       cat "$1" > /tmp/commit.log
   fi
   COMPONENT=$(git log --pretty='format:%B' -1 HEAD |
               sed -n -e '1{;s/.*\[\(.*\)\].*/\1/;p;}' )
   [ -z "$COMPONENT" ] ||
       sed -i -e '1{' \
-               -e '/^$/{a\' -e '' -e '}# Append empty line if required' \
-               -e 'i\' -e "[$COMPONENT] Summary" -e 'd' -e '# Insert summary' \
+               -e 's/^..*$/\n&/' -e '# Insert an empty line if required' \
+               -e 'i\' -e "[$COMPONENT] Summary" -e '# Insert summary' \
              -e '}' "$1"
   ;;
 esac
