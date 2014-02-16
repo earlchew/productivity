@@ -5,6 +5,42 @@ exec 3>&2 2> "/tmp/${0##*/}.log"
 set -e
 set -x
 
+say()
+{
+    local ARG_
+    local SEP_=
+
+    for ARG_ ; do
+        printf "%s%s" "$SEP_" "$ARG_"
+        SEP_=' '
+    done
+    printf "\n"
+}
+
+debug()
+{
+    set -- "$0: DEBUG:" "$@"
+
+    [ -z "${GITDEBUG++}" ] || say "$@" >&2
+}
+
+lsed()
+{
+    # The FreeBSD sed implementation uses -i '' to perform in-place
+    # editing without a backup, whereas GNU uses -i to obtain
+    # the same effect. To differentiate between the two use the GNU-only
+    # --version option.
+
+    [ x"$1" != x"-i" ] || {
+        sed --version 2>&- || {
+            shift
+            set -- '-i' '' "$@"
+        }
+    }
+
+    sed "$@"
+}
+
 # https://www.kernel.org/pub/software/scm/git/docs/githooks.html
 #
 # The first is the name of the file that contains the commit log message.
@@ -18,17 +54,18 @@ set -x
 #
 # The second argument can also empty if none of the above are satisfied.
 #
-{ printf "%s\n" "Arg1: $1"
-  printf "%s\n" "Arg2: $2"
-  printf "%s\n" "Arg3: $3"
-} >&2
+COMMITLOG=$1
+COMMITSRC=$2
+
+debug "Commit log: $COMMITLOG"
+debug "Commit src: $COMMITSRC"
 
 # Add Signed-off-by to commit message unless already present
 #
 AUTHOR="$(git var GIT_AUTHOR_IDENT)"
 if [ -n "$AUTHOR" ] ; then
     AUTHOR="${AUTHOR%%>*}>"
-    if [ -n "$( grep '^Signed-off-by:' < "$1" | {
+    if [ -n "$( grep '^Signed-off-by:' < "$COMMITLOG" | {
                 while read SIGNOFF ; do
                     SIGNOFF="${SIGNOFF#*: }"
                     if [ x"$SIGNOFF" = x"$AUTHOR" ] ; then
@@ -37,28 +74,65 @@ if [ -n "$AUTHOR" ] ; then
                     fi
                 done
                 [ -z "$AUTHOR" ] || printf "%s\n" "$AUTHOR" ; } )" ] ; then
-        sed -ni -e '1{;x;s/^.*/Signed-off-by: '"$AUTHOR"'/;x;}' \
-                -e '/^#/{;x;/^$/{x;bZ;};G;x;s/.*//;x;}' -e ':Z;p' "$1"
+        lsed -i -n -e '1{' \
+                     -e 'x' \
+                     -e 's/^.*/Signed-off-by: '"$AUTHOR"'/' \
+                     -e 'x' \
+                   -e '}' \
+                   -e '/^#/{' \
+                     -e 'x' \
+                     -e '/^$/{' -e 'x' -e 'bZ' -e '}' \
+                     -e 'G' \
+                     -e 'x' \
+                     -e 's/.*//' \
+                     -e 'x' \
+                   -e '}' \
+                 -e ':Z' -e 'p' "$COMMITLOG"
     fi
 fi
 
 # Check for trailing whitespace on newly added lines
 #
-case "$2" in
-template)
+case "$COMMITSRC" in
+"" | template)
+  TAB=$'\t'
   SMSO="$(tput smso)"
   RMSO="$(tput rmso)"
-  git diff --cached |
+  git diff -U1 --cached |
   expand |
-  sed -n -e '1{x;s/.*/0/;x;}# Hold exit status as 1st line' \
-         -e '/^diff /{x;s/\n.*$//;x;H;}# Hold diff header as 2nd line' \
-         -e '/^+.*[\t ]$/{# Highlight each addition that ends in whitespace' \
-         -e ':1;s/\([\t ][\t ]*\)$/'"$SMSO"'\1'"$RMSO"'/;t1' \
-         -e 'x;G;s/^.\n//;# Prepend first output fragment with diff header' \
-         -e 'p' \
-         -e 's/.*/1/;h;# Exit status shows trailing whitespace detected' \
+  sed -n -e '1{' \
+             $(: 'Hold exit status as 1st line') \
+           -e 'x' -e 's/.*/0/' -e 'x' -e '}' \
+         -e '/^diff /{' \
+           $(: 'Hold diff header as 2nd line') \
+           -e 'x' -e 's/\n.*$//' -e 'x' -e 'H' -e '}' \
+         -e '/^@@ /{' \
+           $(: 'Hold context header as 3rd line') \
+           -e 'x' -e 's/\(\n.*\)\n.*$/\1/' -e 'x' -e 'H' -e '}' \
+         -e '/^+.*['"$TAB"' ]$/{' \
+           $(: 'Highlight each addition that ends in whitespace') \
+           -e ':1' -e 's/\(['"$TAB"' ]['"$TAB"' ]*\)$/'"$SMSO"'\1'"$RMSO"'/' \
+                   -e 't1' \
+           $(: 'Prepend first output fragment with diff header') \
+           -e 'x' -e 'G' -e 's/^.\n//' \
+           -e 'p' \
+           $(: 'Make exit code reflect an error') \
+           -e 's/.*/1/' -e 'h' \
+           $(: 'Exit status showing trailing whitespace detected') \
          -e '}' \
-         -e '${x;s/^0//;tQ;q1;:Q;q0;}' >&3 || {
+         -e '${' \
+           $(: 'Print exit code as last line') \
+           -e 'x' -e 's/\n.*//' -e 'p' -e '}' | {
+      PREV=0
+      if read NEXT ; then
+        while : ; do
+          PREV="$NEXT"
+          read NEXT || break
+          printf "%s\n" "$PREV"
+        done
+      fi
+      exit "$PREV"
+    } >&3 || {
     tput setaf 1 ;
     printf "\n%s\n" "Commit aborted due to detected trailing whitespace"
     tput sgr0 ;
@@ -68,28 +142,31 @@ esac
 
 # Add output from diff --cached
 #
-case "$2" in
+case "$COMMITSRC" in
 "" | template)
-  git diff --cached | sed -e '1i\' -e '# ' -e 's/^/# /' >> "$1"
+  git diff --cached | sed -e '1i\
+'"# " -e 's/^/# /' >> "$COMMITLOG"
   if [ -z "${AUTHOR##*<*@cohodata.com>*}" ] ; then
     TICKET=$(git log --pretty='format:%B' -1 HEAD |
-             sed -n -e '/^ref /{;   s/^[a-z]* //;p;q;}' \
-                    -e '/^fix /{;   s/^[a-z]* //;p;q;}' \
-                    -e '/^reopen /{;s/^[a-z]* //;p;q;}' \
-                    -e '/^close /{; s/^[a-z]* //;p;q;}')
+             sed -n -e '/^ref /{' -e '   s/^[a-z]* //' -e 'p' -e 'q' -e '}' \
+                    -e '/^fix /{' -e '   s/^[a-z]* //' -e 'p' -e 'q' -e '}' \
+                    -e '/^reopen /{' -e 's/^[a-z]* //' -e 'p' -e 'q' -e '}' \
+                    -e '/^close /{' -e ' s/^[a-z]* //' -e 'p' -e 'q' -e '}')
     [ -z "$TICKET" ]    ||
-        sed -i -e '1i\' -e "ref $TICKET\\"    \
-                        -e "fix $TICKET\\"    \
-                        -e "reopen $TICKET\\" \
-                        -e "close $TICKET"    "$1"
-       cat "$1" > /tmp/commit.log
+        lsed -i -e '1i\
+'"ref $TICKET\\"'
+'"fix $TICKET\\"'
+'"reopen $TICKET\\"'
+'"close $TICKET"   "$COMMITLOG"
+       cat "$COMMITLOG" > /tmp/commit.log
   fi
   COMPONENT=$(git log --pretty='format:%B' -1 HEAD |
-              sed -n -e '1{;s/.*\[\(.*\)\].*/\1/;p;}' )
+              sed -n -e '1{' -e 's/.*\[\(.*\)\].*/\1/' -e 'p' -e '}' )
   [ -z "$COMPONENT" ] ||
-      sed -i -e '1{' \
-               -e 's/^..*$/\n&/' -e '# Insert an empty line if required' \
-               -e 'i\' -e "[$COMPONENT] Summary" -e '# Insert summary' \
-             -e '}' "$1"
+      lsed -i -e '1{' \
+                -e 's/^..*$/\n&/' $(: 'Insert an empty line if required') \
+                -e 'i\
+'"[$COMPONENT] Summary." $(: 'Insert summary') \
+              -e '}' "$COMMITLOG"
   ;;
 esac
