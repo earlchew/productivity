@@ -1,0 +1,128 @@
+#!/usr/bin/env bash
+
+exec 3>&2 2> "/tmp/${0##*/}.log"
+
+set -e
+set -x
+
+say()
+{
+    local ARG_
+    local SEP_=
+
+    for ARG_ ; do
+        printf "%s%s" "$SEP_" "$ARG_"
+        SEP_=' '
+    done
+    printf "\n"
+}
+
+die()
+{
+    set -- "$0:" "$@"
+    say "$@" >&3
+    exit 1
+}
+
+fail()
+{
+    {
+        say '--------'
+        cat < "$COMMITLOG"
+        say '--------'
+    } >&3
+
+    die "$@"
+}
+
+debug()
+{
+    set -- "$0: DEBUG:" "$@"
+
+    [ -z "${GITDEBUG++}" ] || say "$@"
+}
+
+lsed()
+{
+    # The FreeBSD sed implementation uses -i '' to perform in-place
+    # editing without a backup, whereas GNU uses -i to obtain
+    # the same effect. To differentiate between the two use the GNU-only
+    # --version option.
+
+    [ x"$1" != x"-i" ] || {
+        sed --version 2>&- || {
+            shift
+            set -- '-i' '' "$@"
+        }
+    }
+
+    sed "$@"
+}
+
+# https://www.kernel.org/pub/software/scm/git/docs/githooks.html
+#
+# This hook is invoked by git commit, and can be bypassed with
+# --no-verify option. It takes a single parameter, the name of the file
+# that holds the proposed commit log message. Exiting with non-zero
+# status causes the git commit to abort.
+#
+# The hook is allowed to edit the message file in place, and can be
+# used to normalize the message into some project standard format (if
+# the project has one). It can also be used to refuse the commit after
+# inspecting the message file.
+
+COMMITLOG=$1
+
+debug "Commit log: $COMMITLOG"
+
+# Non-empty commit log
+#
+# Check if the commit log is missing or empty.
+
+[ -r "$COMMITLOG" -a -s "$COMMITLOG" ] ||
+    die "Commit log must not be empty"
+
+# Verify that there is a summary.
+#
+# Check the first line and ensure that it is not empty.
+
+[ "$(sed -n -e '1p' "$COMMITLOG" |
+                           wc -c | { REPLY=0
+                                     read
+                                     say $REPLY ; } )" -gt 1 ] ||
+    fail "First line of commit must contain a summary"
+
+# Verify that the summary ends with a period
+#
+# Check the last character of the first line for a period.
+
+[ x"$(sed -n -e '1{' \
+               -e 's/.*\(.\)$/\1/' \
+               -e 'p' \
+               -e 'q' \
+             -e '}' "$COMMITLOG")" = x. ] ||
+    fail "Commit summary must end in a period"
+
+# Verify that there is a blank line separating the summary from the body.
+#
+# Read the second line and ensure that it is empty.
+
+[ "$(sed -n -e '2p' "$COMMITLOG" |
+                           wc -c | { REPLY=0
+                                     read
+                                     say $REPLY ; } )" -le 1 ] ||
+    fail "Second line of commit must be empty"
+
+# Verify that there is one sign off.
+#
+# Find all the sign off lines and verify that there is precisely one.
+
+case "$(sed -n -e '/^Signed-off-by: /p' "$COMMITLOG" |
+                                               wc -l | { REPLY=0
+                                                         read
+                                                         say $REPLY
+                                                        } )" in
+0) fail "Commit must contain a sign off line"     ;;
+1)                                                ;;
+*) fail "Commit contains too many sign off lines" ;;
+esac
