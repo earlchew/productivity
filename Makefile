@@ -1,11 +1,12 @@
-RC = .bash_profile:bash_profile \
-     .bashrc:bashrc             \
-     .dircolorsrc:dircolorsrc   \
-     .profile:profile           \
-     .vimrc:vimrc               \
-     .emacs:emacs               \
-     .xsessionrc:xsessionrc     \
-     .gitconfig:gitconfig       \
+RC = .bash_profile:bash_profile             \
+     .bashrc:bashrc                         \
+     .dircolorsrc:dircolorsrc               \
+     .profile:profile                       \
+     .vimrc:vimrc                           \
+     .emacs:emacs                           \
+     .xsessionrc:xsessionrc                 \
+     .gitconfig:gitconfig                   \
+     .signature.cohodata:signature.cohodata \
      .remote-terminal-config:remote-terminal-config
 
 all:
