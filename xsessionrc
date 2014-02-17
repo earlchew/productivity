@@ -2,6 +2,31 @@
 # It should restrict itself to initialising environment variables to
 # configure a session.
 
+# MacPorts paths
+#
+case "$(uname -s)" in
+Darwin)
+    export PATH=$(
+        LOCALPATH="/opt/local/sbin"
+        [ -n "${HOME:++}"                        ] &&
+        [ x"$PATH" != x"$LOCALPATH"              ] &&
+        [ x"$PATH"  = x"${PATH##$LOCALPATH:*}"   ] &&
+        [ x"$PATH"  = x"${PATH##*:$LOCALPATH:*}" ] &&
+        [ x"$PATH"  = x"${PATH%%*:$LOCALPATH}"   ] &&
+        PATH="$LOCALPATH:$PATH"
+        echo "$PATH")
+    export PATH=$(
+        LOCALPATH="/opt/local/bin"
+        [ -n "${HOME:++}"                        ] &&
+        [ x"$PATH" != x"$LOCALPATH"              ] &&
+        [ x"$PATH"  = x"${PATH##$LOCALPATH:*}"   ] &&
+        [ x"$PATH"  = x"${PATH##*:$LOCALPATH:*}" ] &&
+        [ x"$PATH"  = x"${PATH%%*:$LOCALPATH}"   ] &&
+        PATH="$LOCALPATH:$PATH"
+        echo "$PATH")
+    ;;
+esac
+
 # Local path
 #
 export PATH=$(
