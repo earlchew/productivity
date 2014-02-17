@@ -20,6 +20,13 @@
 	prune-stale-branches = "remote prune origin"
 	delete-remote-branch = "push origin --delete"
 	empty = "hash-object -t tree /dev/null"
+	updatehooks = "!eval ls $(git config init.templatedir)/hooks | \
+                        while read f ; do \
+                          h=".git/hooks/$f" ; \
+                          printf '+ %s\\n' "$h" ; \
+                          rm -f -- "$h" ; \
+                        done && git init"
+	scrub = clean -d -x -f
 
 [init]
-	templatedir = /home/earl/Local/rc/git.init.template/
+	templatedir = ~/Local/rc/git.init.template
