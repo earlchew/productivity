@@ -20,3 +20,5 @@
 	prune-stale-branches = "remote prune origin"
 	delete-remote-branch = "push origin --delete"
 
+[init]
+	templatedir = /home/earl/Local/rc/git.init.template/
