@@ -3,6 +3,12 @@
 
 [ ! -r ~/.xsessionrc ] || . ~/.xsessionrc
 
+# Do not check for mail delivery
+#
+unset MAIL
+unset MAILCHECK
+unset MAILPATH
+
 # 256 colour support
 #
 # http://askubuntu.com/questions/233280/gnome-terminal-reports-term-to-be-xterm

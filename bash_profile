@@ -5,9 +5,3 @@
 [ ! -r ~/.profile ] || . ~/.profile
 
 case "$-" in *i*) [ ! -r ~/.bashrc ] || . ~/.bashrc ;; esac
-
-# Do not check for mail delivery
-#
-unset MAIL
-unset MAILCHECK
-unset MAILPATH
