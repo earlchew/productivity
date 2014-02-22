@@ -92,16 +92,47 @@ debug "Commit log: $COMMITLOG"
                                      say $REPLY ; } )" -gt 1 ] ||
     fail "First line of commit must contain a summary"
 
-# Verify that the summary ends with a period
+# Verify that there the summary contains plain text and space.
 #
-# Check the last character of the first line for a period.
+# Check the entire commit and filter for unwanted characters.
+
+[ "$(sed -e '/^#/d' "$COMMITLOG" |
+     tr -d '[:print:]\n' | wc -c | { REPLY=0
+                                     read
+                                     say $REPLY ; } )" -eq 0 ] ||
+    fail "Commit contains tabs or other non-printable characters"
+
+# Verify that there the summary does not end in whitespace.
+#
+# Check the first line, and search for trailing whitespace.
 
 [ x"$(sed -n -e '1{' \
-               -e 's/.*\(.\)$/\1/' \
+               -e '/  *$/{' \
+                 -e 's/.*/./' \
+                 -e 'p' \
+                 -e 'q' \
+               -e '}' \
+               -e 's/.*//' \
                -e 'p' \
                -e 'q' \
-             -e '}' "$COMMITLOG")" = x. ] ||
-    fail "Commit summary must end in a period"
+             -e '}' "$COMMITLOG")" != x. ] ||
+    fail "Commit summary has trailing whitespace"
+
+# Verify that the summary does not end in a period
+#
+# Check for a period as the last character of the summary
+
+[ x"$(sed -n -e '1{' \
+               -e '/\.$/{' \
+                 -e 's/.*/./' \
+                 -e 'p' \
+                 -e 'q' \
+               -e '}' \
+               -e 's/.*//' \
+               -e 'p' \
+               -e 'q' \
+             -e '}' "$COMMITLOG")" != x. ] ||
+    fail "Commit summary must not end in a period"
 
 # Verify that there is a blank line separating the summary from the body.
 #

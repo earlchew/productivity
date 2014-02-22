@@ -166,7 +166,7 @@ case "$COMMITSRC" in
       lsed -i -e '1{' \
                 -e 's/^..*$/\n&/' $(: 'Insert an empty line if required') \
                 -e 'i\
-'"[$COMPONENT] Summary." $(: 'Insert summary') \
+'"[$COMPONENT] Summary" $(: 'Insert summary') \
               -e '}' "$COMMITLOG"
   ;;
 esac
