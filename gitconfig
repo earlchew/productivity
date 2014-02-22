@@ -19,6 +19,7 @@
                          grep -v -e '~$'"
 	prune-stale-branches = "remote prune origin"
 	delete-remote-branch = "push origin --delete"
+	empty = "hash-object -t tree /dev/null"
 
 [init]
 	templatedir = /home/earl/Local/rc/git.init.template/
