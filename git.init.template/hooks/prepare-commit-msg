@@ -32,7 +32,7 @@ lsed()
     # --version option.
 
     [ x"$1" != x"-i" ] || {
-        sed --version 2>&- || {
+        sed --version >/dev/null 2>&1 || {
             shift
             set -- '-i' '' "$@"
         }
