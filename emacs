@@ -17,11 +17,14 @@
 ;;; http://www.emacswiki.org/emacs/IndentingC
 ;;;
 (c-add-style
- "Personal"
- '("ellemtel" (c-basic-offset . 4)
-              (c-offsets-alist . ((member-init-intro . 0)
-                                  (case-label        . 0)
-                                  (substatement-open . 0)))))
+    "Personal"
+     '("ellemtel" (c-basic-offset . 4)
+                  (c-offsets-alist . ((member-init-intro . 0)
+                                      (case-label        . 0)
+                                      (substatement-open . 0)))))
+(setq c-default-style
+    '((c-mode   . "Personal"),
+      (c++-mode . "Personal")))
 
 ;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/FrameSize
