@@ -160,3 +160,8 @@ M-x compile.
 ;;; http://www.emacswiki.org/emacs/DeleteSelectionMode
 ;;;
 (delete-selection-mode 1)
+
+;;; ****************************************************************************
+;;; http://www.emacswiki.org/emacs/EmacsCrashCode
+;;;
+(setq confirm-kill-emacs 'yes-or-no-p)
