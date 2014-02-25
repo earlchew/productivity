@@ -1,3 +1,4 @@
+#
 # This initialisation script will be invoked when initialising an X session.
 # It should restrict itself to initialising environment variables to
 # configure a session.
@@ -91,5 +92,28 @@ Darwin)
         }
         ' < "$HOME/.dircolorsrc" | dircolors -
     )
+    ;;
+esac
+
+# Choose email address for git
+#
+# The man page for git-commit-tree says in reference to GIT_AUTHOR_EMAIL, and
+# GIT_COMMITTER_EMAIL:
+#
+#    In case (some of) these environment variables are not set, the
+#    information is taken from the configuration items user.name and
+#    user.email, or, if not present, the environment variable EMAIL, or, if
+#    that is not set, system user name and the hostname used for outgoing
+#    mail (taken from /etc/mailname and falling back to the fully qualified
+#    hostname when that file does not exist).
+#
+# This means that the environment variable EMAIL will be used as a default
+# in the absence of user.email, GIT_AUTHOR_EMAIL and GIT_COMMITTER_EMAIL.
+# Setting EMAIL here allows each repository to override the value if
+# required.
+
+case "$(domainname)" in
+*.convergent.io | convergent.io | *.cohodata.com | cohodata.com)
+    export EMAIL="$USER@cohodata.com"
     ;;
 esac
