@@ -62,7 +62,11 @@ debug "Commit src: $COMMITSRC"
 
 # Add Signed-off-by to commit message unless already present
 #
+[ -z "${EMAIL++}" ] ||
+[ -n "${GIT_AUTHOR_EMAIL++}" ] || export GIT_AUTHOR_EMAIL="$EMAIL"
+
 AUTHOR="$(git var GIT_AUTHOR_IDENT)"
+
 if [ -n "$AUTHOR" ] ; then
     AUTHOR="${AUTHOR%%>*}>"
     if [ -n "$( grep '^Signed-off-by:' < "$COMMITLOG" | {
