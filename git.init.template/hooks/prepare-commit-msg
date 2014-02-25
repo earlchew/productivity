@@ -152,13 +152,12 @@ case "$COMMITSRC" in
                     -e '/^fix /{' -e '   s/^[a-z]* //' -e 'p' -e 'q' -e '}' \
                     -e '/^reopen /{' -e 's/^[a-z]* //' -e 'p' -e 'q' -e '}' \
                     -e '/^close /{' -e ' s/^[a-z]* //' -e 'p' -e 'q' -e '}')
-    [ -z "$TICKET" ]    ||
-        lsed -i -e '1i\
+    [ -n "$TICKET" ] || TICKET="CIO-1234"
+    lsed -i -e '1i\
 '"ref $TICKET\\"'
 '"fix $TICKET\\"'
 '"reopen $TICKET\\"'
 '"close $TICKET"   "$COMMITLOG"
-       cat "$COMMITLOG" > /tmp/commit.log
   fi
   COMPONENT=$(git log --pretty='format:%B' -1 HEAD |
               sed -n -e '1{' -e 's/.*\[\(.*\)\].*/\1/' -e 'p' -e '}' )
