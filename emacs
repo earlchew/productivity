@@ -57,7 +57,8 @@
 (global-set-key (kbd "\C-x\C-b") 'buffer-menu)
 
 ;;; ****************************************************************************
-;;; http://stackoverflow.com/questions/4096580/how-to-make-emacs-reload-the-tags-file-automatically
+;;; http://stackoverflow.com/questions/
+;;;    4096580/how-to-make-emacs-reload-the-tags-file-automatically
 ;;;
 (setq tags-revert-without-query 1)
 
@@ -136,8 +137,9 @@ M-x compile.
 
 ;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/WhiteSpace
-;;; http://stackoverflow.com/questions/6378831/emacs-globally-enable-whitespace-mode
 ;;; http://stackoverflow.com/questions/7874548/emacs-23-3-1-whitespace-style
+;;; http://stackoverflow.com/questions/
+;;;    6378831/emacs-globally-enable-whitespace-mode
 ;;;
 (require 'whitespace)
 (setq-default whitespace-line-column 80)
@@ -165,3 +167,18 @@ M-x compile.
 ;;; http://www.emacswiki.org/emacs/EmacsCrashCode
 ;;;
 (setq confirm-kill-emacs 'yes-or-no-p)
+
+;;; ****************************************************************************
+;;; http://www.delorie.com/gnu/docs/emacs/emacs_221.html
+;;;
+(setq inhibit-eol-conversion t)
+
+;;; ****************************************************************************
+;;; http://stackoverflow.com/questions/3124844/
+;;;    what-are-your-favorite-global-key-bindings-in-emacs
+;;;
+(global-set-key   "\M-%"    'query-replace-regexp)
+(global-set-key   "\C-s"    'isearch-forward-regexp)
+(global-set-key   "\C-r"    'isearch-backward-regexp)
+(global-unset-key "\C-\M-s")
+(global-unset-key "\C-\M-r")
