@@ -42,8 +42,11 @@ export PATH=$(
 
 # Editor selection
 #
-[ ! -x "$(which vi)" ] ||
-export EDITOR=$(which vi)
+if [ -x "$(which vim)" ] ; then
+    export EDITOR=$(which vim)
+elif [ -x "$(which vi)" ] ; then
+    export EDITOR=$(which vi)
+fi
 
 # Colour directory listings
 #
