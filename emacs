@@ -40,6 +40,13 @@
     (add-to-list 'default-frame-alist (cons 'height (frame-height))))
 
 ;;; ****************************************************************************
+;;; http://stackoverflow.com/questions/
+;;;    3170947/can-i-modify-the-color-of-emacs-mini-buffer
+;;;
+(when (not (display-graphic-p))
+    (set-face-foreground 'minibuffer-prompt "white"))
+
+;;; ****************************************************************************
 ;;; http://www.masteringemacs.org/articles/2010/10/10/introduction-to-ido-mode/
 ;;;
 (setq ido-enable-flex-matching t)
