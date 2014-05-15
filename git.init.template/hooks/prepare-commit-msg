@@ -146,10 +146,22 @@ esac
 
 # Add output from diff --cached
 #
+COMMITDIFF=
+COMMITTEMPLATE=
 case "$COMMITSRC" in
 "" | template)
-  git diff --cached | sed -e '1i\
+  COMMITDIFF=--cached
+  COMMITTEMPLATE=yes
+  ;;
+commit)
+  COMMITDIFF=HEAD~
+  ;;
+esac
+if [ -n "$COMMITDIFF" ] ; then
+  git diff "$COMMITDIFF" | sed -e '1i\
 '"# " -e 's/^/# /' >> "$COMMITLOG"
+fi
+if [ -n "$COMMITTEMPLATE" ] ; then
   if [ -z "${AUTHOR##*<*@cohodata.com>*}" ] ; then
     TICKET=$(git log --pretty='format:%B' -1 HEAD |
              sed -n -e '/^ref /{' -e '   s/^[a-z]* //' -e 'p' -e 'q' -e '}' \
@@ -171,5 +183,4 @@ case "$COMMITSRC" in
                 -e 'i\
 '"[$COMPONENT] Summary" $(: 'Insert summary') \
               -e '}' "$COMMITLOG"
-  ;;
-esac
+fi
