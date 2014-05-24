@@ -97,6 +97,7 @@ fi
 
 # Check for trailing whitespace on newly added lines
 #
+[ -n "${GIT_COMMIT_ALLOW_WHITESPACE++}" ] ||
 case "$COMMITSRC" in
 "" | template)
   TAB=$'\t'
