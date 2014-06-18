@@ -152,6 +152,10 @@ case "$COMMITSRC" in
   git diff --cached | sed -e '1i\
 '"# " -e 's/^/# /' >> "$COMMITLOG"
   if [ -z "${AUTHOR##*<*@cohodata.com>*}" ] ; then
+    TICKET=$(git rev-parse --abbrev-ref HEAD |
+             sed -e 's/.*\(CIO-[[:digit:]][[:digit:]]*\).*/\1/')
+    [ -z "$TICKET" -o -z "${TICKET##CIO-*}" ] || TICKET=
+    [ -n "$TICKET" ] ||
     TICKET=$(git log --pretty='format:%B' -1 HEAD |
              sed -n -e '/^ref /{' -e '   s/^[a-z]* //' -e 'p' -e 'q' -e '}' \
                     -e '/^fix /{' -e '   s/^[a-z]* //' -e 'p' -e 'q' -e '}' \
