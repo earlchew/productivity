@@ -26,6 +26,13 @@
                           rm -f -- "$h" ; \
                         done && git init"
 	scrub = clean -d -x -f
+	lsbranch = "!git for-each-ref \
+            --format '%(committerdate:raw) %(refname)' refs/heads/ | \
+            sort -n -k1,1 | \
+            while read TIME TZ REF ; do \
+                printf '%s %s\\n' \"$(date -Iseconds -d \"@$TIME\")\" \
+                                  \"${REF#refs/heads/}\"; \
+            done"
 
 [init]
 	templatedir = ~/Local/rc/git.init.template
