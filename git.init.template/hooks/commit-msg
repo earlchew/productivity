@@ -147,7 +147,9 @@ debug "Commit log: $COMMITLOG"
 # Verify that there is one sign off.
 #
 # Find all the sign off lines and verify that there is precisely one.
+# Do not do so if this is a summary created by Phabricator Differential.
 
+grep -F -q '^Differential Revision:' "$COMMITLOG" ||
 case "$(sed -n -e '/^Signed-off-by: /p' "$COMMITLOG" |
                                                wc -l | { REPLY=0
                                                          read
