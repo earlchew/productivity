@@ -180,7 +180,8 @@ if [ -n "$COMMITTEMPLATE" ] ; then
               sed -n -e '1{' -e 's/.*\[\(.*\)\].*/\1/' -e 'p' -e '}' )
   [ -z "$COMPONENT" ] ||
       lsed -i -e '1{' \
-                -e 's/^..*$/\n&/' $(: 'Insert an empty line if required') \
+                -e 's/^..*$/\
+&/' $(: 'Insert an empty line if required') \
                 -e 'i\
 '"[$COMPONENT] Summary" $(: 'Insert summary') \
               -e '}' "$COMMITLOG"
