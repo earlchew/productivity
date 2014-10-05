@@ -27,6 +27,61 @@
       (c++-mode . "Personal")))
 
 ;;; ****************************************************************************
+;;; ;;; http://permalink.gmane.org/gmane.emacs.help/65857
+;;;
+(add-hook 'c-initialization-hook
+    '(lambda() (modify-syntax-entry ?_ "w" c-mode-syntax-table)))
+
+;;; ****************************************************************************
+;;; https://www.gnu.org/software/emacs/manual/html_node/
+;;;    ccmode/Subword-Movement.html
+;;; http://fossies.org/linux/misc/emacs-24.3.tar.gz/emacs-24.3/
+;;;    lisp/progmodes/subword.el
+
+(add-hook 'c-mode-common-hook
+    (lambda () (subword-mode 1)))
+
+(require 'subword)
+
+(setq subword-forward-regexp
+    (concat
+     "\\(?:"
+         "\\(?1:[[:alnum:]]+_+\\)" "\\|"
+         "\\(?1:[[:upper:]]+[[:lower:][:digit:]]*_*\\)"
+     "\\)"))
+
+(setq subword-forward-function
+    (lambda ()
+        (if
+            (and
+                (save-excursion
+                    (let
+                        ((case-fold-search nil))
+                        (re-search-forward subword-forward-regexp nil t)))
+                (> (match-end 0) (point)))
+            (goto-char (match-end 1))
+            (forward-word 1))))
+
+(setq subword-backward-regexp
+    (concat
+     "\\(?:"
+         "\\(?:\\W\\|_+\\)\\(?1:[[:alnum:]]+\\)" "\\|"
+         "\\(?:\\W\\|[[:lower:][:digit:]]+\\)_*"
+             "\\(?1:[[:upper:]]+[[:lower:][:digit:]]*_*\\)"
+     "\\)"))
+
+(setq subword-backward-function
+    (lambda ()
+        (if
+            (and
+                (save-excursion
+                    (let ((case-fold-search nil))
+                        (re-search-backward subword-backward-regexp nil t)))
+                (< (match-beginning 0) (point)))
+            (goto-char (match-beginning 1))
+            (backward-word 1))))
+
+;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/FrameSize
 ;;; http://www.emacswiki.org/emacs/FrameModes
 ;;; http://www.emacswiki.org/emacs/frame-cmds.el
