@@ -92,6 +92,7 @@
     (load-file "~/Local/emacs/frame-cmds/frame-cmds.el")
     (add-to-list 'default-frame-alist '(width . 80))
     (maximize-frame-vertically)
+    (set-frame-size (selected-frame) (frame-width) (frame-height))
     (add-to-list 'default-frame-alist (cons 'height (frame-height))))
 
 ;;; ****************************************************************************
