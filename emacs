@@ -47,6 +47,7 @@
     (concat
      "\\(?:"
          "\\(?1:[[:alnum:]]+_+\\)" "\\|"
+         "\\(?1:[[:alnum:]]+\\)\\W" "\\|"
          "\\(?1:[[:upper:]]+[[:lower:][:digit:]]*_*\\)"
      "\\)"))
 
@@ -80,6 +81,51 @@
                 (< (match-beginning 0) (point)))
             (goto-char (match-beginning 1))
             (backward-word 1))))
+
+(defun next-word (&optional arg)
+    (interactive "p")
+    (let
+        (
+            (fwd
+                (if (bound-and-true-p subword-mode)
+                    'subword-forward
+                    'forward-word))
+            (bwd
+                (if (bound-and-true-p subword-mode)
+                    'subword-backward
+                    'backward-word)))
+        (cond
+            ((< arg 0) (prev-word (- arg)))
+            ((> arg 0)
+                (dotimes (iter arg)
+                    (let
+                        (
+                            (here (point)))
+                        (funcall fwd)
+                        (funcall bwd)
+                        (if (= here (point))
+                            (progn
+                                (funcall fwd 2)
+                                (funcall bwd)))))))))
+
+(defun prev-word (&optional arg)
+    (interactive "p")
+    (let
+        (
+            (fwd
+                (if (bound-and-true-p subword-mode)
+                    'subword-forward
+                    'forward-word))
+            (bwd
+                (if (bound-and-true-p subword-mode)
+                    'subword-backward
+                    'backward-word)))
+        (cond
+            ((< arg 0) (next-word (- arg)))
+            ((> arg 0) (funcall bwd arg)))))
+
+(global-set-key "\M-f" 'next-word)
+(global-set-key "\M-b" 'prev-word)
 
 ;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/FrameSize
