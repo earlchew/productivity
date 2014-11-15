@@ -12,6 +12,7 @@
 	rebase-cwb = "!git rebase -i $(git merge-base master $(git pwb) ) \
                        $(git pwb)"
 	lg = "log --graph --oneline --decorate"
+	lgn = "log --graph --oneline --decorate --name-only"
 	lgdiff = "log --graph --decorate -p"
 	unstage = "reset HEAD"
 	ls-untracked = "!git ls-files --other --exclude-standard | \
