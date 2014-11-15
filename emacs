@@ -23,7 +23,7 @@
                                       (case-label        . 0)
                                       (substatement-open . 0)))))
 (setq c-default-style
-    '((c-mode   . "Personal"),
+    '((c-mode   . "Personal")
       (c++-mode . "Personal")))
 
 ;;; ****************************************************************************
