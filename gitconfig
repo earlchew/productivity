@@ -6,19 +6,68 @@
 
 [alias]
 	exec = "!exec " # Whitespace to force /bin/sh instead of fork/exec
+	pullout = "! f() \
+           { \
+               git remote | { \
+                   while read REMOTE ; do \
+                       [ x\"$REMOTE\" != x\"$1\" ] || exit 0 ; \
+                   done ; \
+                   exit 1 ; \
+               } || { echo \"Unknown remote $1\" ; exit 1 ; } ; \
+               git checkout \"$2\" \
+               && git pull \"$1\" \"$2\" \
+               && git submodule update --recursive ; \
+           }; f"
 	checkedout = "!git status -uno --short --porcelain | \
                       sed -re 's/^ *[^ ]+ *//'"
-	pwb = "rev-parse --abbrev-ref HEAD"
-	rebase-cwb = "!git rebase -i $(git merge-base master $(git pwb) ) \
-                       $(git pwb)"
+	pwb = "!git rev-parse --abbrev-ref HEAD && \
+               git --no-pager log --graph --oneline --decorate -1"
+	pwr = "!pwd"
+	cherry-pick-branch = "! f() { \
+                [ $# -eq 1 -o $# -eq 2 ] || \
+                    { echo \"usage: cherry-pick-branch reference branch\" >&2 ; \
+                      exit 1 ; } ; \
+                [ $# -ne 1 ] || set -- \"$1\" \"$(git pwb)\" ; \
+                git cherry-pick \"$(git merge-base \"$1\" \"$2\")..$2\" ; \
+            } ; f "
+	rebase-branch-here = "! f() { \
+                [ $# -eq 1 -o $# -eq 2 ] || \
+                    { echo \"usage: rebase-branch-here reference branch\" >&2 ; \
+                      exit 1 ; } ; \
+                [ $# -ne 1 ] || set -- \"$1\" \"$(git pwb)\" ; \
+                git rebase --onto HEAD $(git merge-base \"$1\" \"$2\") \"$2\" ; \
+            } ; f "
+	rebase-branch = "! f() { \
+                [ $# -eq 1 -o $# -eq 2 ] || \
+                    { echo \"usage: rebase-branch reference [branch]\" >&2 ; \
+                      exit 1 ; } ; \
+                [ $# -ne 1 ] || set -- \"$1\" \"$(git pwb)\" ; \
+                git rebase -i $(git merge-base \"$1\" \"$2\") \"$2\" ; \
+            } ; f "
 	lg = "log --graph --oneline --decorate"
 	lgn = "log --graph --oneline --decorate --name-only"
 	lgdiff = "log --graph --decorate -p"
 	unstage = "reset HEAD"
 	ls-untracked = "!git ls-files --other --exclude-standard | \
                          grep -v -e '~$'"
-	prune-stale-branches = "remote prune origin"
+	update-repo = "! f() { \
+                [ $# -eq 1 ] || \
+                    { echo \"usage: update-repo repo\" >&2 ; \
+                      exit 1 ; } ; \
+               git fetch \"$1\" && git remote prune \"$1\" ; \
+            } ; f "
 	delete-remote-branch = "push origin --delete"
+	delete-matching-branches = "! f() { \
+                [ $# -eq 1 ] || \
+                    { echo \"usage: delete-matching-branches pattern\" >&2 ; \
+                      exit 1 ; } ; \
+                git branch -r | grep -e \"$1\" | while read B ; do \
+                    git push \"${B%%/*}\" :\"${B#origin/}\" || exit $? ; \
+                done ; \
+                git branch | grep -e \"$1\" | while read B ; do \
+                    git branch -D \"$B\" || exit $? ; \
+                done ; \
+            } ; f "
 	empty = "hash-object -t tree /dev/null"
 	updatehooks = "!eval ls $(git config init.templatedir)/hooks | \
                         while read f ; do \
@@ -26,7 +75,7 @@
                           printf '+ %s\\n' "$h" ; \
                           rm -f -- "$h" ; \
                         done && git init"
-	scrub = clean -d -x -f
+	scrub = "! git exec git clean -d -x -f"
 	lsbranch = "!git for-each-ref \
             --format '%(committerdate:raw) %(refname)' refs/heads/ | \
             sort -n -k1,1 | \
@@ -37,5 +86,6 @@
 
 [init]
 	templatedir = ~/Local/rc/git.init.template
+
 [push]
 	default = simple
