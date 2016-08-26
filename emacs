@@ -41,7 +41,9 @@
 (add-hook 'c-mode-common-hook
     (lambda () (subword-mode 1)))
 
-(require 'subword)
+(if (version< emacs-version "24.0")
+    (require 'cc-subword)
+    (require 'subword))
 
 (setq subword-forward-regexp
     (concat
