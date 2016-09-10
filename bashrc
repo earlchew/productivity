@@ -38,3 +38,7 @@ PS1="$PS1\u@\h"
 PS1="$PS1\[$(tput sgr0 | sed -e 's/\o033/\\033/g')\] "
 PS1="$PS1\w\$ "
 PROMPT_DIRTRIM=2
+
+# Correctly track history across multiple sessions
+#
+PROMPT_COMMAND='history -a'
