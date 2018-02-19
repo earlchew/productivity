@@ -130,6 +130,13 @@
 (global-set-key "\M-b" 'prev-word)
 
 ;;; ****************************************************************************
+;;; https://jblevins.org/projects/markdown-mode/
+;;;
+(load-file "~/Local/productivity/emacs/markdown/markdown-mode.el")
+(require 'markdown-mode "markdown-mode")
+(add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode))
+
+;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/FrameSize
 ;;; http://www.emacswiki.org/emacs/FrameModes
 ;;; http://www.emacswiki.org/emacs/frame-cmds.el
