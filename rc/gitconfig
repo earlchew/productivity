@@ -85,7 +85,7 @@
             done"
 
 [init]
-	templatedir = ~/Local/rc/git.init.template
+	templatedir = ~/.git.init.template
 
 [push]
 	default = simple
