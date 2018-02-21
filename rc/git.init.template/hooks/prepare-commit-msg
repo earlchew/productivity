@@ -100,49 +100,7 @@ fi
 [ -n "${GIT_COMMIT_ALLOW_WHITESPACE++}" ] ||
 case "$COMMITSRC" in
 "" | template)
-  TAB=$'\t'
-  SMSO="$(tput smso)"
-  RMSO="$(tput rmso)"
-  git diff -U1 --cached |
-  expand |
-  sed -n -e '1{' \
-             $(: 'Hold exit status as 1st line') \
-           -e 'x' -e 's/.*/0/' -e 'x' -e '}' \
-         -e '/^diff /{' \
-           $(: 'Hold diff header as 2nd line') \
-           -e 'x' -e 's/\n.*$//' -e 'x' -e 'H' -e '}' \
-         -e '/^@@ /{' \
-           $(: 'Hold context header as 3rd line') \
-           -e 'x' -e 's/\(\n.*\)\n.*$/\1/' -e 'x' -e 'H' -e '}' \
-         -e '/^+.*['"$TAB"' ]$/{' \
-           $(: 'Highlight each addition that ends in whitespace') \
-           -e ':1' -e 's/\(['"$TAB"' ]['"$TAB"' ]*\)$/'"$SMSO"'\1'"$RMSO"'/' \
-                   -e 't1' \
-           $(: 'Prepend first output fragment with diff header') \
-           -e 'x' -e 'G' -e 's/^.\n//' \
-           -e 'p' \
-           $(: 'Make exit code reflect an error') \
-           -e 's/.*/1/' -e 'h' \
-           $(: 'Exit status showing trailing whitespace detected') \
-         -e '}' \
-         -e '${' \
-           $(: 'Print exit code as last line') \
-           -e 'x' -e 's/\n.*//' -e 'p' -e '}' | {
-      PREV=0
-      if read NEXT ; then
-        while : ; do
-          PREV="$NEXT"
-          read NEXT || break
-          printf "%s\n" "$PREV"
-        done
-      fi
-      exit "$PREV"
-    } >&3 || {
-    tput setaf 1 ;
-    printf "\n%s\n" "Commit aborted due to detected trailing whitespace"
-    tput sgr0 ;
-    exit 1
-  } >&3
+  git diff --cached --check >&3
 esac
 
 # Add output from diff --cached
