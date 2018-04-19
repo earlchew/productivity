@@ -1,6 +1,8 @@
 # This initialisation script will be invoked when bash runs as an
 # interactive shell (but not a login shell nor a script shell).
 
+# Include local definitions
+#
 [ ! -r ~/.xsessionrc ] || . ~/.xsessionrc
 
 # Do not check for mail delivery
