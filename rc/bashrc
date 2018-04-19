@@ -45,6 +45,20 @@ PROMPT_DIRTRIM=2
 #
 PROMPT_COMMAND='history -a'
 
-# Resize the terminal size when necessary
+# Convenience settings for interactive sessions
 #
-[[ $- != *i* -o -z ${DISPLAY++} ]] || shopt -s checkwinsize
+if [[ $- == *i* ]] ; then
+
+    # Resize the terminal size when necessary
+    #
+    shopt -s checkwinsize
+
+    # Check hash results before executing
+    #
+    shopt -s checkhash
+
+    # Check jobs before exiting
+    #
+    shopt -s checkjobs
+
+fi
