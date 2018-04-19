@@ -44,3 +44,7 @@ PROMPT_DIRTRIM=2
 # Correctly track history across multiple sessions
 #
 PROMPT_COMMAND='history -a'
+
+# Resize the terminal size when necessary
+#
+[[ $- != *i* -o -z ${DISPLAY++} ]] || shopt -s checkwinsize
