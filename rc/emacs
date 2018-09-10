@@ -137,6 +137,12 @@
 (add-to-list 'auto-mode-alist '("\\.md\\'" . gfm-mode))
 
 ;;; ****************************************************************************
+;;; https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode
+;;;
+(load-file "~/Local/productivity/emacs/kotlin-mode/kotlin-mode.el")
+(require 'kotlin-mode "kotlin-mode")
+
+;;; ****************************************************************************
 ;;; http://www.emacswiki.org/emacs/FrameSize
 ;;; http://www.emacswiki.org/emacs/FrameModes
 ;;; http://www.emacswiki.org/emacs/frame-cmds.el
