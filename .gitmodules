@@ -1,3 +1,6 @@
 [submodule "emacs/markdown"]
 	path = emacs/markdown
 	url = https://github.com/jrblevin/markdown-mode.git
+[submodule "emacs/kotlin-mode"]
+	path = emacs/kotlin-mode
+	url = https://github.com/Emacs-Kotlin-Mode-Maintainers/kotlin-mode.git
