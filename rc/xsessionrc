@@ -126,8 +126,7 @@ esac
 # Setting EMAIL here allows each repository to override the value if
 # required.
 
-case "$(domainname)" in
-*.amazon.com)
-    export EMAIL="$USER@amazon.com"
-    ;;
-esac
+[ -n "${EMAIL++}" ] || [ ! -r ~/etc/email ] || {
+    read EMAIL
+    export EMAIL
+} < ~/etc/email
