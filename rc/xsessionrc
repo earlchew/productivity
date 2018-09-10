@@ -1,32 +1,35 @@
-#
 # This initialisation script will be invoked when initialising an X session.
 # It should restrict itself to initialising environment variables to
 # configure a session.
 
-# MacPorts paths
+# Augmented environment
 #
-case "$(uname -s)" in
-Darwin)
-    export PATH=$(
-        LOCALPATH="/opt/local/sbin"
-        [ -n "${HOME:++}"                        ] &&
-        [ x"$PATH" != x"$LOCALPATH"              ] &&
-        [ x"$PATH"  = x"${PATH##$LOCALPATH:*}"   ] &&
-        [ x"$PATH"  = x"${PATH##*:$LOCALPATH:*}" ] &&
-        [ x"$PATH"  = x"${PATH%%*:$LOCALPATH}"   ] &&
-        PATH="$LOCALPATH:$PATH"
-        echo "$PATH")
-    export PATH=$(
-        LOCALPATH="/opt/local/bin"
-        [ -n "${HOME:++}"                        ] &&
-        [ x"$PATH" != x"$LOCALPATH"              ] &&
-        [ x"$PATH"  = x"${PATH##$LOCALPATH:*}"   ] &&
-        [ x"$PATH"  = x"${PATH##*:$LOCALPATH:*}" ] &&
-        [ x"$PATH"  = x"${PATH%%*:$LOCALPATH}"   ] &&
-        PATH="$LOCALPATH:$PATH"
-        echo "$PATH")
-    ;;
-esac
+eval "$(
+    [ ! -d ~/etc/env ] || for LOCALENV in ~/etc/env/+* ; do
+        while read -r REPLY ; do
+            printf '\nexport %s' "$REPLY"
+        done < "$LOCALENV"
+    done)"
+
+# Augmented path
+#
+PATH=$(
+    {
+        [ ! -d ~/etc/paths ] || for P in ~/etc/paths/+* ; do
+            while read LOCALPATH ; do
+	        eval printf "'%s\n'" '"'"$LOCALPATH"'"'
+            done < "$P"
+        done
+    } | {
+	LOCALPATH=:
+	while read -r P ; do
+	    LOCALPATH="$LOCALPATH$P:"
+	done
+	LOCALPATH=${LOCALPATH#:}
+	[ -z "$LOCALPATH" ] || PATH="$LOCALPATH$PATH"
+	printf '%s\n' "$PATH"
+    }
+)
 
 # Local path
 #
@@ -39,6 +42,14 @@ export PATH=$(
     [ x"$PATH"  = x"${PATH%%*:$LOCALPATH}"   ] &&
     PATH="$LOCALPATH:$PATH"
     echo "$PATH")
+
+# Initialise pyenv
+#
+# The initialisation for pyenv must come after all other PATH configuration
+# in order to have the python shims installed ahead of the other
+# path components.
+#
+[ ! -x "$(which pyenv)" ] || eval "$(pyenv init -)"
 
 # Editor selection
 #
@@ -116,7 +127,7 @@ esac
 # required.
 
 case "$(domainname)" in
-*.convergent.io | convergent.io | *.cohodata.com | cohodata.com)
-    export EMAIL="$USER@cohodata.com"
+*.amazon.com)
+    export EMAIL="$USER@amazon.com"
     ;;
 esac
